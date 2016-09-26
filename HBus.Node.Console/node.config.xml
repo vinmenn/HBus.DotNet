@@ -1,0 +1,205 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<configuration>
+  <defaults>
+    <!-- Hbus protocol settings-->
+    <namesLength>5</namesLength>
+    <addressWidth>OneByte</addressWidth>
+    <commandTimeout>6</commandTimeout>
+  </defaults>
+  <!-- Host configuration-->
+  <node default="false" type="HBus.Nodes.Node, HBus.Node">
+    <parameters>
+      <parameter name="configurator" type="" value="@configurator" />
+    </parameters>
+    <info>
+      <id>3</id>
+      <name>ND002</name>
+      <address>2</address>
+      <description>ConsoleNode</description>
+      <type>Hub</type>
+      <!-- todo move to hardware type info -->
+      <hardware>X86</hardware>
+      <version>1.0.0</version>
+      <location>local test node</location>
+    </info>
+    <!-- Console hal : only for debug -->
+    <hal type="HBus.Nodes.Hardware.ConsoleHal, HBus.Node">
+      <parameters />
+    </hal>
+    <bus>
+      <ports>
+        <!-- Serial port -->
+        <!-- 
+        -->
+        <!--
+        <port type="HBus.Ports.PortSerial, HBus">
+          <parameters>
+            <parameter name="portname"    type="System.String"  value="COM16" />
+            <parameter name="portnumber"  type="System.Int32"   value="0" />
+            <parameter name="baudrate"    type="System.Int32"   />
+            <parameter name="parity"      type="System.IO.Ports.Parity"   />
+            <parameter name="databits"    type="System.Int32"   />
+            <parameter name="stopbits"    type="System.IO.Ports.StopBits" />
+            <parameter name="asyncmessages" type="System.Boolean" value="false" />
+          </parameters>
+        </port>
+        -->
+        <!-- Tcp Port-->
+        <!--
+        -->
+        <port type="HBus.Ports.PortTcp, HBus">
+          <parameters>
+            <parameter name="hostip" type="System.String" value="192.168.1.33" />
+            <parameter name="listenport" type="System.Int32" value="5000" />
+            <parameter name="sendport" type="System.Int32" value="5001" />
+            <parameter name="portnumber" type="System.Int32" value="0" />
+            <parameter name="asyncmessages" type="System.Boolean" value="false" />
+          </parameters>
+        </port>
+        <!-- Udp Port-->
+        <!--
+        <port type="HBus.Ports.PortUdp, HBus">
+          <parameters>
+            <parameter name="port" type="System.Int32" value="50000" />
+            <parameter name="ipAddress" type="System.String" value="127.0.0.1" />
+            <parameter name="portnumber" type="System.Int32" value="0" />
+            <parameter name="asyncmessages" type="System.Boolean" value="false" />
+          </parameters>
+        </port>
+        -->
+        <!-- Mq Port-->
+        <!--
+        <port type="HBus.Ports.PortMq, HBus">
+          <parameters>
+            <parameter name="host" type="System.String" value="192.168.1.33" />
+            <parameter name="portnumber" type="System.Int32" value="0" />
+          </parameters>
+        </port>
+        -->
+        <!-- ZMq Port
+        <port type="HBus.Ports.PortZMq, HBus">
+          <parameters>
+            rx
+            <parameter name="localpoint" type="System.String" value="tcp://*:5556" />
+            tx
+            localhost
+            <parameter name="endpoint" type="System.String" value="tcp://127.0.0.1:5555" />
+            <remote>
+            <parameter name="endpoint" type="System.String" value="tcp://192.168.1.33:5555" />
+            <parameter name="portnumber" type="System.Int32" value="0" />
+          </parameters>LS2
+        </port>
+        -->
+      </ports>
+    </bus>
+    <pins>
+      <!-- Inputs -->
+      <pin index="0" name="CS201" description="" location="living room" type="Input" subtype="InputLowHigh" source="7" />
+      <pin index="1" name="CS202" description="" location="living room" type="Input" subtype="InputLowHigh" source="6" />
+      <pin index="2" name="CS203" description="" location="living room" type="Input" subtype="InputLowHigh" source="5" />
+      <pin index="3" name="CS204" description="" location="living room" type="Input" subtype="InputLowHigh" source="4" />
+      <pin index="4" name="CS205" description="" location="living room" type="Input" subtype="InputLowHigh" source="3" />
+      <pin index="5" name="CS206" description="" location="living room" type="Input" subtype="InputLowHigh" source="2" />
+      <pin index="6" name="CS207" description="" location="living room" type="Input" subtype="InputLowHigh" source="1" />
+      <pin index="7" name="CS208" description="" location="living room" type="Input" subtype="InputLowHigh" source="0" />
+      <!-- Outputs -->
+      <pin index="0" name="LS201" description="" location="living room" type="Output" subtype="OutputToggle" source="7" />
+      <pin index="1" name="LS202" description="" location="living room" type="Output" subtype="OutputToggle" source="6" />
+      <pin index="2" name="LS203" description="" location="living room" type="Output" subtype="OutputToggle" source="5" />
+      <pin index="3" name="LS204" description="" location="living room" type="Output" subtype="OutputToggle" source="4" />
+    </pins>
+    <wires>
+      <!-- wires to digital outputs -->
+      <!-- LS201-->
+      <wire index="0" input="CS201" command="ACTIVATE" trigger ="OnActivate" data="76,83,49,48,49" />
+      <!-- LS202 -->
+      <wire index="1" input="CS202" command="ACTIVATE" trigger ="OnActivate" data="76,83,49,48,50" />
+      <!-- LS203 -->
+      <wire index="2" input="CS203" command="ACTIVATE" trigger ="OnActivate" data="76,83,49,48,51" />
+      <!-- LS204 -->
+      <wire index="3" input="CS204" command="ACTIVATE" trigger ="OnActivate" data="76,83,49,48,52" />
+      <!-- wires to local device -->
+      <!-- device DS201, action = open -->
+      <wire index="4" input="CS205" command="EXECUTE_DEVICE_ACTION" trigger ="OnActivate" data="68,83,49,48,49,111,112,101,110,0,0,0" />
+      <!-- device DS201, action = close -->
+      <wire index="5" input="CS206" command="EXECUTE_DEVICE_ACTION" trigger ="OnActivate" data="68,83,49,48,49,99,108,111,115,101,0,0,0" />
+      <!-- device DS202, action = open -->
+      <wire index="6" input="CS207" command="EXECUTE_DEVICE_ACTION" trigger ="OnActivate" data="68,83,49,48,50,111,112,101,110,0,0,0" />
+      <!-- device DS202, action = close -->
+      <wire index="7" input="CS208" command="EXECUTE_DEVICE_ACTION" trigger ="OnActivate" data="68,83,49,48,50,99,108,111,115,101,0,0,0" />
+    </wires>
+    <devices>
+      <device type="HBus.Nodes.Devices.Shutter, HBus.Node">
+        <parameters>
+          <parameter name="openPin" type="System.String" value="1" />
+          <parameter name="closePin" type="System.String" value="0" />
+          <parameter name="delay" type="System.Int32" value="10" />
+          <parameter name="hal" type="" value="@hal" />
+        </parameters>
+        <info>
+          <name>DS201</name>
+          <index>0</index>
+          <description>Main window</description>
+          <location>Bathroom</location>
+          <class></class>
+        </info>
+      </device>
+      <device type="HBus.Nodes.Devices.Shutter, HBus.Node">
+        <parameters>
+          <parameter name="openPin" type="System.String" value="2" />
+          <parameter name="closePin" type="System.String" value="3" />
+          <parameter name="delay" type="System.Int32" value="10" />
+          <parameter name="hal" type="" value="@hal" />
+        </parameters>
+        <info>
+          <name>DS202</name>
+          <index>1</index>
+          <description>Secondary window</description>
+          <location>Bathroom</location>
+          <class></class>
+        </info>
+      </device>
+    </devices>
+    <sensors>
+      <sensor type="HBus.Nodes.Sensors.DummySensor, HBus.Node">
+        <parameters>
+          <parameter name="hal"         type=""  value="@hal" />
+          <parameter name="scheduler"    type="" value="@scheduler" />
+        </parameters>
+        <info>
+          <name>SN201</name>
+          <index>0</index>
+          <description>Test sensor</description>
+          <location>secretlab</location>
+          <interval>0</interval>
+          <class>temperature</class>
+          <unit>°C</unit>
+          <minRange>-10</minRange>
+          <maxRange>40</maxRange>
+          <scale>1.0</scale>
+          <hardware>test</hardware>
+        </info>
+      </sensor>
+      <sensor type="HBus.Nodes.Sensors.DummySensor, HBus.Node">
+        <parameters>
+          <parameter name="hal"         type=""  value="@hal" />
+          <parameter name="scheduler"    type="" value="@scheduler" />
+        </parameters>
+        <info>
+          <name>SN202</name>
+          <index>1</index>
+          <description>Test sensor 2</description>
+          <location>office</location>
+          <interval>0</interval>
+          <class>temperature</class>
+          <unit>°C</unit>
+          <minRange>-20</minRange>
+          <maxRange>60</maxRange>
+          <scale>1.0</scale>
+          <hardware>dummy</hardware>
+        </info>
+      </sensor>
+    </sensors> 
+    <subnodes />
+  </node>
+</configuration>
