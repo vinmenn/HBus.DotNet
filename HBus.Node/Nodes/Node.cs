@@ -370,17 +370,28 @@ namespace HBus.Nodes
 
                     pin.OnPinActivate += (sender, args) =>
                     {
-                        if (Status.NodeStatus != NodeStatusValues.Ready && Status.NodeStatus != NodeStatusValues.Active) return;
+                      if (Status.NodeStatus != NodeStatusValues.Ready && Status.NodeStatus != NodeStatusValues.Active)
+                        return;
 
-                        var ptmp = Pins.FirstOrDefault(p => p.Name == args.Event.Pin);
-                        if (ptmp != null)
-                        {
-                            //Store active input or output
-                            if (ptmp.Type == PinTypes.Input || ptmp.Type == PinTypes.Analog || ptmp.Type == PinTypes.Counter)
-                                Status.LastActivatedInput = ptmp.Name;
-                            else
-                                Status.LastActivatedOutput = ptmp.Name;
-                        }
+                      var ptmp = Pins.FirstOrDefault(p => p.Name == args.Event.Pin);
+                      if (ptmp != null)
+                      {
+                        //Store active input or output
+                        if (ptmp.Type == PinTypes.Input || ptmp.Type == PinTypes.Analog || ptmp.Type == PinTypes.Counter)
+                          Status.LastActivatedInput = ptmp.Name;
+                        else
+                          Status.LastActivatedOutput = ptmp.Name;
+                      }
+                      //local handlers
+                      if (OnPinEvent != null)
+                        OnPinEvent(_bus.Address, args.Event);
+
+                      //Remote handlers
+                      foreach (var psub in _pinSubscribers.Where(p => p.Value.Name == args.Event.Pin))
+                      {
+                        _bus.SendCommand(NodeCommands.CMD_PUSH_PIN_EVENT,
+                          Address.Parse(psub.Key.Substring(0, psub.Key.IndexOf('.'))), args.Event.ToArray());
+                      }
                     };
                 }
                 #endregion

@@ -243,3 +243,5 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/HBus.Server/App.debug.config
+/HBus.Server/App.release.config

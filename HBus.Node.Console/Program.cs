@@ -121,9 +121,10 @@ namespace HBus.ConsoleNode
             Console.WriteLine(string.Format("\td: device {0} action close", _node.Devices[1].Name));
             Console.WriteLine(string.Format("\tQ: read remote sensor {0} @ {1}", _extSensors[0].Name, _extSensors[0].Address));
             Console.WriteLine(string.Format("\tW: read remote sensor {0} @ {1}", _extSensors[1].Name, _extSensors[1].Address));
-            Console.WriteLine(string.Format("\tE: read local sensor {0}", _node.Sensors[0].Address));
-            Console.WriteLine(string.Format("\tR: read local sensor {0}", _node.Sensors[1].Address));
-            Console.WriteLine(string.Format("\tT: read local sensor {0}", _node.Sensors[2].Address));
+            Console.WriteLine(string.Format("\tE: read local sensor {0}", _node.Sensors[0].Name));
+            Console.WriteLine(string.Format("\tR: read local sensor {0}", _node.Sensors[1].Name));
+            if (_node.Sensors.Count > 2)
+              Console.WriteLine(string.Format("\tT: read local sensor {0}", _node.Sensors[2].Name));
             Console.WriteLine(string.Format("\tx: exit"));
             break;
           #endregion

@@ -46,16 +46,16 @@
         -->
         <!-- Tcp Port-->
         <!--
-        -->
         <port type="HBus.Ports.PortTcp, HBus">
           <parameters>
-            <parameter name="hostip" type="System.String" value="192.168.1.33" />
+            <parameter name="hostip" type="System.String" value="127.0.0.1" />
             <parameter name="listenport" type="System.Int32" value="5000" />
             <parameter name="sendport" type="System.Int32" value="5001" />
             <parameter name="portnumber" type="System.Int32" value="0" />
             <parameter name="asyncmessages" type="System.Boolean" value="false" />
           </parameters>
         </port>
+        -->
         <!-- Udp Port-->
         <!--
         <port type="HBus.Ports.PortUdp, HBus">
@@ -77,19 +77,14 @@
         </port>
         -->
         <!-- ZMq Port
+        -->
         <port type="HBus.Ports.PortZMq, HBus">
           <parameters>
-            rx
             <parameter name="localpoint" type="System.String" value="tcp://*:5556" />
-            tx
-            localhost
             <parameter name="endpoint" type="System.String" value="tcp://127.0.0.1:5555" />
-            <remote>
-            <parameter name="endpoint" type="System.String" value="tcp://192.168.1.33:5555" />
             <parameter name="portnumber" type="System.Int32" value="0" />
-          </parameters>LS2
+          </parameters>
         </port>
-        -->
       </ports>
     </bus>
     <pins>
@@ -111,22 +106,22 @@
     <wires>
       <!-- wires to digital outputs -->
       <!-- LS201-->
-      <wire index="0" input="CS201" command="ACTIVATE" trigger ="OnActivate" data="76,83,49,48,49" />
+      <wire index="0" input="CS201" command="ACTIVATE" trigger ="OnActivate" data="76,83,50,48,49" />
       <!-- LS202 -->
-      <wire index="1" input="CS202" command="ACTIVATE" trigger ="OnActivate" data="76,83,49,48,50" />
+      <wire index="1" input="CS202" command="ACTIVATE" trigger ="OnActivate" data="76,83,50,48,50" />
       <!-- LS203 -->
-      <wire index="2" input="CS203" command="ACTIVATE" trigger ="OnActivate" data="76,83,49,48,51" />
+      <wire index="2" input="CS203" command="ACTIVATE" trigger ="OnActivate" data="76,83,50,48,51" />
       <!-- LS204 -->
-      <wire index="3" input="CS204" command="ACTIVATE" trigger ="OnActivate" data="76,83,49,48,52" />
+      <wire index="3" input="CS204" command="ACTIVATE" trigger ="OnActivate" data="76,83,50,48,52" />
       <!-- wires to local device -->
       <!-- device DS201, action = open -->
-      <wire index="4" input="CS205" command="EXECUTE_DEVICE_ACTION" trigger ="OnActivate" data="68,83,49,48,49,111,112,101,110,0,0,0" />
+      <wire index="4" input="CS205" command="EXECUTE_DEVICE_ACTION" trigger ="OnActivate" data="68,83,50,48,49,111,112,101,110,0,0,0" />
       <!-- device DS201, action = close -->
-      <wire index="5" input="CS206" command="EXECUTE_DEVICE_ACTION" trigger ="OnActivate" data="68,83,49,48,49,99,108,111,115,101,0,0,0" />
+      <wire index="5" input="CS206" command="EXECUTE_DEVICE_ACTION" trigger ="OnActivate" data="68,83,50,48,49,99,108,111,115,101,0,0,0" />
       <!-- device DS202, action = open -->
-      <wire index="6" input="CS207" command="EXECUTE_DEVICE_ACTION" trigger ="OnActivate" data="68,83,49,48,50,111,112,101,110,0,0,0" />
+      <wire index="6" input="CS207" command="EXECUTE_DEVICE_ACTION" trigger ="OnActivate" data="68,83,50,48,50,111,112,101,110,0,0,0" />
       <!-- device DS202, action = close -->
-      <wire index="7" input="CS208" command="EXECUTE_DEVICE_ACTION" trigger ="OnActivate" data="68,83,49,48,50,99,108,111,115,101,0,0,0" />
+      <wire index="7" input="CS208" command="EXECUTE_DEVICE_ACTION" trigger ="OnActivate" data="68,83,50,48,50,99,108,111,115,101,0,0,0" />
     </wires>
     <devices>
       <device type="HBus.Nodes.Devices.Shutter, HBus.Node">

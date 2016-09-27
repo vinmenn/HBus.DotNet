@@ -16,6 +16,7 @@ namespace HBus.Server.Processors
     public string Unit { get; set; }
     public string[] Tags { get; set; }
   }
+
   public struct ArtikDeviceType
   {
     public string Id { get; set; }
@@ -26,6 +27,7 @@ namespace HBus.Server.Processors
     public string[] Tags { get; set; }
     public ArtikDeviceField[] Fields { get; set; }
   }
+
   public struct ArtikDevice
   {
     public ArtikDeviceType Type { get; set; }
@@ -33,7 +35,10 @@ namespace HBus.Server.Processors
     public string Token { get; set; }
     public string Name { get; set; }
     public string Source { get; set; }
+    public string Address { get; set; }
+    public string Channel { get; set; }
   }
+
   public class ArtikProcessor : BaseProcessor
   {
     private const string WebSocketUrl = "wss://api.artik.cloud/v1.1/websocket?ack=true";
@@ -56,6 +61,7 @@ namespace HBus.Server.Processors
     }
 
     #region Artik methods
+
     public override void Start()
     {
       try
@@ -86,10 +92,11 @@ namespace HBus.Server.Processors
 
       //Event from ep source
       OnSourceEvent = null;
-      
+
       //_ws.Dispose();
       base.Stop();
     }
+
     public void RegisterAllDevices()
     {
       Log.Info("Registering artik devices on the websocket connection");
@@ -127,7 +134,7 @@ namespace HBus.Server.Processors
 
     private long TotalMilliseconds()
     {
-      return (long)(DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds;
+      return (long) (DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds;
       //return (long) (DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds;
     }
 
@@ -152,7 +159,8 @@ namespace HBus.Server.Processors
             read = string.Format("\"timestamp\" : {0}, \"value\" : {1}", 0, val);
             break;
           case "pin-change":
-            read = string.Format("\"timestamp\" : {0}, \"value\" : {1}, \"status\" : \"{2}\"", @event.Timestamp.Ticks, @event.Value, @event.Status);
+            read = string.Format("\"timestamp\" : {0}, \"value\" : {1}, \"status\" : \"{2}\"", @event.Timestamp.Ticks,
+              @event.Value, @event.Status);
             break;
           case "device-event":
             read = string.Format("\"timestamp\" : {0}, \"status\" : \"{1}\"", @event.Timestamp.Ticks, @event.Status);
@@ -164,11 +172,11 @@ namespace HBus.Server.Processors
         var ts = TotalMilliseconds();
 
         var json = "{ " +
-                  "\n\t\"sdid\": \"" + device.Id + "\"," +
-                  "\n\t\"ts\": " + ts + "," +
-                  "\n\t\"data\": {" + read + "}," +
-                  "\n\t\"cid\": \"" + ts + "\"" +
-                  "\n}";
+                   "\n\t\"sdid\": \"" + device.Id + "\"," +
+                   "\n\t\"ts\": " + ts + "," +
+                   "\n\t\"data\": {" + read + "}," +
+                   "\n\t\"cid\": \"" + ts + "\"" +
+                   "\n}";
 
         Log.Info("Sending artik data to the cloud: " + json);
         _client.Send(json);
@@ -182,18 +190,50 @@ namespace HBus.Server.Processors
         Log.Error("Failed to send data message", ex);
       }
     }
+
     #endregion
 
     #region Websocket client event handlers
+
     private void ClientOpened(object sender, EventArgs e)
     {
       Log.Info("Websocket connection opening");
       RegisterAllDevices();
     }
+
     private void MessageReceived(object sender, MessageReceivedEventArgs e)
     {
       Log.Info("Websocket received: " + e.Message);
+
+      try
+      {
+
+        dynamic action = JsonConvert.DeserializeObject(e.Message);
+
+        if (action.type != "action") return;
+
+        var dev = _devices.FirstOrDefault(d => d.Id == action.ddid.Value);
+        //TODO: var actionData = action.data.actions[0].parameters to byte array
+        if (dev.Id != null)
+        {
+          var evt = new Event()
+          {
+            Name = "device-" + action.data.actions[0].name,
+            Address = dev.Address,
+            Source = dev.Source,
+            MessageType = "event",
+            Channel = dev.Channel,
+            Data = null
+          };
+          Send(evt, this);
+        }
+      }
+      catch (Exception ex)
+      {
+        Log.Error("Received artik message error", ex);
+      }
     }
+
     private void ClientClosed(object sender, EventArgs e)
     {
       Log.Info("Websocket connection closing");
