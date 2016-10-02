@@ -245,3 +245,4 @@ ModelManifest.xml
 .fake/
 /HBus.Server/App.debug.config
 /HBus.Server/App.release.config
+/HBus.Node.Console/node.config .backup.xml

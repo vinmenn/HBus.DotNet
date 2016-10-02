@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;ARTIK_DEMO_LOCAL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -28,7 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;ARTIK_DEMO_RASPBERRY</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Hardware\Rly816Hal.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sensors\Ds18b20Sensor.cs" />
@@ -73,11 +74,24 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="LogoHBus.ico" />
+    <Content Include="node.config .backup.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="node.config.windows.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="node.config.raspberry.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="node.config.xml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>IF $(ConfigurationName) == Debug COPY /Y "$(ProjectDir)node.config.windows.xml" "$(ProjectDir)node.config.xml"
+IF $(ConfigurationName) == Release COPY /Y "$(ProjectDir)node.config.raspberry.xml" "$(ProjectDir)node.config.xml"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

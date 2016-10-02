@@ -66,29 +66,37 @@ namespace HBus.Ports
 
         new Thread(() =>
         {
-          while (_listen)
+          try
           {
-            byte[] data;
 
-            while ((_res != null) && _res.HasIn)
-              if (_res.TryReceiveFrameBytes(TimeSpan.FromSeconds(30), out data))
-              {
-                Log.Debug(string.Format("Received {0} bytes", data.Length));
+            while (_listen)
+            {
+              byte[] data;
 
-                //Process received data
-                if (!ProcessData(data, data.Length))
+              while ((_res != null) && _res.HasIn)
+                if (_res.TryReceiveFrameBytes(TimeSpan.FromSeconds(30), out data))
                 {
-                  _res.SignalError();
+                  Log.Debug(string.Format("Received {0} bytes", data.Length));
 
-                  Log.Error(string.Format("Processing {0} bytes failed", data.Length));
-                }
-                else
-                {
-                  _res.SignalOK();
+                  //Process received data
+                  if (!ProcessData(data, data.Length))
+                  {
+                    _res.SignalError();
 
-                  Log.Debug(string.Format("Processed {0} bytes", data.Length));
+                    Log.Error(string.Format("Processing {0} bytes failed", data.Length));
+                  }
+                  else
+                  {
+                    _res.SignalOK();
+
+                    Log.Debug(string.Format("Processed {0} bytes", data.Length));
+                  }
                 }
-              }
+            }
+          }
+          catch (Exception e)
+          {
+            Log.Error("PortZMq loop error", e);
           }
         }).Start();
 

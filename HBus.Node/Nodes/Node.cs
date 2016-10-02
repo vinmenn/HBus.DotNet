@@ -1116,8 +1116,18 @@ namespace HBus.Nodes
         {
             while (!_cts.Token.IsCancellationRequested)
             {
-                _hal.Update();
-                Thread.Sleep(100);
+              _hal.Update();
+
+              foreach (var pin in Pins)
+              {
+                pin.Check();
+              }
+
+              //foreach (var device in Devices)
+              //{
+              //  device.Check();
+              //}
+                Task.Delay(100);
             }
         }
 

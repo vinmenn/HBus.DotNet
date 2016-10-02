@@ -6,9 +6,10 @@ using Newtonsoft.Json;
 using System.Threading;
 using System.Linq;
 using WebSocket4Net;
-
+using HBus;
 namespace HBus.Server.Processors
 {
+  #region TODO: use official Artik c# library
   public struct ArtikDeviceField
   {
     public string Name { get; set; }
@@ -38,21 +39,36 @@ namespace HBus.Server.Processors
     public string Address { get; set; }
     public string Channel { get; set; }
   }
+  #endregion
+
+  public class ArtikEvent : Event
+  {
+    public string Id { get; set; }
+    public string TypeId { get; set; }
+    public string Token { get; set; }
+
+    public ArtikEvent(string id, string typeId, string token, string name, string source, string address, string channel)
+    {
+      Id = id;
+      TypeId = typeId;
+      Token = token;
+      Name = name;
+      Source = source;
+      Address = address;
+      Channel = channel;
+    }
+  }
 
   public class ArtikProcessor : BaseProcessor
   {
     private const string WebSocketUrl = "wss://api.artik.cloud/v1.1/websocket?ack=true";
-    //private const string BaseUrl = "https://api.artik.cloud/v1.1";
-
 
     private WebSocket _client;
-    //private WebSocketServer _ws;
-    private readonly IList<ArtikDevice> _devices;
-    //private readonly IList<IWebSocketConnection> _clients;
+    private readonly IList<ArtikEvent> _events;
 
-    public ArtikProcessor(IList<ArtikDevice> devices)
+    public ArtikProcessor(IList<ArtikEvent> events)
     {
-      _devices = devices;
+      _events = events;
       //Websocket start
       _client = new WebSocket(WebSocketUrl);
       _client.Opened += ClientOpened;
@@ -61,23 +77,15 @@ namespace HBus.Server.Processors
     }
 
     #region Artik methods
-
     public override void Start()
     {
       try
       {
-        //Event from ep source
+        //Event from source
         OnSourceEvent = SendDataToArtik;
 
         _client.Open();
 
-        //_ws.Start(socket =>
-        //{
-        //    socket.OnOpen = () => OnOpen(socket);
-        //    socket.OnClose = () => OnClose(socket);
-        //    socket.OnMessage = message => OnWsMessage(socket, message);
-        //    socket.OnError = (exception) => OnError(exception);
-        //});
         base.Start();
       }
       catch (Exception ex)
@@ -97,19 +105,19 @@ namespace HBus.Server.Processors
       base.Stop();
     }
 
-    public void RegisterAllDevices()
+    private void RegisterAllDevices()
     {
       Log.Info("Registering artik devices on the websocket connection");
       try
       {
-        foreach (var device in _devices)
+        foreach (var @event in _events)
         {
 
           var register = new
           {
             type = "register",
-            sdid = device.Id,
-            Authorization = "bearer " + device.Token,
+            sdid = @event.Id,
+            Authorization = "bearer " + @event.Token,
             cid = TotalMilliseconds()
           };
 
@@ -119,11 +127,7 @@ namespace HBus.Server.Processors
 
           _client.Send(json);
 
-          //foreach (var client in _clients)
-          //{
-          //    client.Send(json);
-          //}
-          Thread.Sleep(10);
+          Thread.Sleep(100);
         }
       }
       catch (Exception ex)
@@ -144,26 +148,28 @@ namespace HBus.Server.Processors
       {
 
         string read = "";
-        var device = _devices.FirstOrDefault(d => d.Source == @event.Source);
-        if (string.IsNullOrEmpty(device.Id))
+
+        var myevent = _events.FirstOrDefault(e => e.Source == @event.Source);
+
+        if (myevent == null)
         {
-          Log.Warn(string.Format("Device {0} not found", @event.Name));
+          Log.Warn(string.Format("Event for source {0} not found", @event.Source));
           return;
         }
 
         var val = @event.Value.ToString("0.00", CultureInfo.InvariantCulture);
-
+        var time = ((double) @event.Timestamp.TimeOfDay.TotalSeconds).ToString("0.00", CultureInfo.InvariantCulture);
         switch (@event.Name)
         {
           case "sensor-read":
-            read = string.Format("\"timestamp\" : {0}, \"value\" : {1}", 0, val);
+            read = string.Format("\"timestamp\" : {0}, \"value\" : {1}", time, val);
             break;
           case "pin-change":
-            read = string.Format("\"timestamp\" : {0}, \"value\" : {1}, \"status\" : \"{2}\"", @event.Timestamp.Ticks,
+            read = string.Format("\"timestamp\" : {0}, \"value\" : {1}, \"status\" : \"{2}\"", time,
               @event.Value, @event.Status);
             break;
           case "device-event":
-            read = string.Format("\"timestamp\" : {0}, \"status\" : \"{1}\"", @event.Timestamp.Ticks, @event.Status);
+            read = string.Format("\"timestamp\" : {0}, \"status\" : \"{1}\"", time, @event.Status);
             break;
           default:
             return;
@@ -172,7 +178,7 @@ namespace HBus.Server.Processors
         var ts = TotalMilliseconds();
 
         var json = "{ " +
-                   "\n\t\"sdid\": \"" + device.Id + "\"," +
+                   "\n\t\"sdid\": \"" + myevent.Id + "\"," +
                    "\n\t\"ts\": " + ts + "," +
                    "\n\t\"data\": {" + read + "}," +
                    "\n\t\"cid\": \"" + ts + "\"" +
@@ -180,10 +186,8 @@ namespace HBus.Server.Processors
 
         Log.Info("Sending artik data to the cloud: " + json);
         _client.Send(json);
-        //foreach (var client in _clients)
-        //        {
-        //            client.Send(json);
-        //        }
+        Thread.Sleep(100);
+
       }
       catch (Exception ex)
       {
@@ -212,21 +216,20 @@ namespace HBus.Server.Processors
 
         if (action.type != "action") return;
 
-        var dev = _devices.FirstOrDefault(d => d.Id == action.ddid.Value);
-        //TODO: var actionData = action.data.actions[0].parameters to byte array
-        if (dev.Id != null)
+        var devevt = _events.FirstOrDefault(d => d.Id == action.ddid.Value);
+
+        if (devevt == null) return;
+        //Translate artik event data into HBus Server event
+        var evt = new Event()
         {
-          var evt = new Event()
-          {
-            Name = "device-" + action.data.actions[0].name,
-            Address = dev.Address,
-            Source = dev.Source,
-            MessageType = "event",
-            Channel = dev.Channel,
-            Data = null
-          };
-          Send(evt, this);
-        }
+          Name = "device-" + action.data.actions[0].name,
+          Address = devevt.Address,
+          Source = devevt.Source,
+          MessageType = "event",
+          Channel = devevt.Channel,
+          Data = devevt.Data
+        };
+        Send(evt, this);
       }
       catch (Exception ex)
       {
