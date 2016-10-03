@@ -32,7 +32,8 @@ nodes, sending a HBus command when input is activated.
 ##Installation
 A node can be defined configuring its pins, devices and sensor with node.config.xml file as described before,
 or directly by code adding pins, devices and sensors to the node.
-Example of code using configurator:
+
+**Example of code using configurator:**
 ```C#
       //Create configurator
       var configurator = new XmlConfigurator("node.config.xml");
