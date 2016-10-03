@@ -140,6 +140,19 @@ namespace HBus.Server.Processors
       };
     }
 
+    public override void Start()
+    {
+      _bus.Open();
+
+      base.Start();
+    }
+    public override void Stop()
+    {
+      _bus.Close();
+
+      base.Stop();
+    }
+
     #region HBus events
 
     /// <summary>

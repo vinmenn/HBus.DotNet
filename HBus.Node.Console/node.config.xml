@@ -1,4 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Node configuration for remote raspberry node 
+  12 pins (8 input 4 output)
+  8 wires
+  2 devices (shutter)
+  2 simulated sensors (dummy sensor)
+-->
 <configuration>
   <defaults>
     <!-- Hbus protocol settings-->
@@ -12,7 +18,7 @@
       <parameter name="configurator" type="" value="@configurator" />
     </parameters>
     <info>
-      <id>3</id>
+      <id>2</id>
       <name>ND002</name>
       <address>2</address>
       <description>ConsoleNode</description>

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // occorre quindi modificare i valori di questi attributi.
 
 [assembly: AssemblyTitle("HBus")]
-[assembly: AssemblyDescription("HBus communication library")]
+[assembly: AssemblyDescription("HBus home automation library")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("VM")]
 [assembly: AssemblyProduct("HBus controller library")]
@@ -41,7 +41,8 @@ using System.Runtime.InteropServices;
 // 2.2.* - 30/07/2015: Architecture optimization
 // 2.3.* - 30/09/2015: Code revision for Github publication
 // 2.4.* - 12/09/2016: Created PortZMq with ZeroMq message queue
+// 2.4.1 - 03/10/2016: added try catch into ZeroMq thread loop
 //-----------------------------------------------------------------------------------------------------------------------------
 
 [assembly: AssemblyVersion("2.4.*")]
-[assembly: AssemblyFileVersion("2.4.0")]
+[assembly: AssemblyFileVersion("2.4.1")]

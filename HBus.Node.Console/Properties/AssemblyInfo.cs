@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("HBus.NodeConsole")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyCopyright("Copyright ©  2015-2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,8 +32,13 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 // Revisions:
-// 2015-07-07 0.1.0 : First version extracted from main project
-// 2015-11-15 0.2.0 : Added read from node 7
-// 2015-11-22 0.3.0 : Added ds18b20 sensor
-[assembly: AssemblyVersion("0.3.*")]
-[assembly: AssemblyFileVersion("0.3.0.0")]
+// 0.1.0 - 07-07-2015: First version extracted from main project
+// 0.2.0 - 15/11/2015: Added read from node 7
+// 0.3.0 - 22/11/2015: Added ds18b20 sensor
+// 0.4.0 - 03/10/2016: Added Rly816Hal
+//                     Added GpioHal
+//                     Added confguration files node.windows.config.xml and node.raspberry.config.xml
+//                     Set pragmas for ARTIK_DEMO_LOCAL and ARTIK_DEMO_RASPBERRY
+
+[assembly: AssemblyVersion("0.4.*")]
+[assembly: AssemblyFileVersion("0.4.0")]

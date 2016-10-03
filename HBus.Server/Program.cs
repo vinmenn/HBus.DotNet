@@ -34,7 +34,7 @@ namespace HBus.Server
       #region HBus scheduler processor: schedule all sensors readings
       Console.WriteLine("..Configuring Scheduler processor");
       var interval = Convert.ToInt32(ConfigurationManager.AppSettings["processor.scheduler.interval"]);
-      var sp = new SchedulerProcessor(new[]
+      var sproc = new SchedulerProcessor(new[]
       {
         //Read sensor 1 from console node
         new EventSchedule(DateTime.Now.AddSeconds(10), new Event()
@@ -95,8 +95,8 @@ namespace HBus.Server
             //new PortTcp(hbHost,5000, 5001, 0),
             new PortZMq("tcp://*:5555","tcp://127.0.0.1:5556", 0)
           });
-      var hbusEp = new HBusProcessor(bus);
-      hbusEp.OnSourceEvent(new Event()
+      var hbusproc = new HBusProcessor(bus);
+      hbusproc.OnSourceEvent(new Event()
       {
         Name = "pin-subscribe",
         MessageType = "event",
@@ -107,16 +107,18 @@ namespace HBus.Server
 
       #endregion
 
+      #region Websocket processor
       Console.WriteLine("..Configuring websocket processor");
-      var wsEp = new WebsocketProcessor("ws://0.0.0.0:5050");
+      var wsproc = new WebsocketProcessor("ws://0.0.0.0:5050");
+      #endregion
 
       #region ThingSpeak processor
       Console.WriteLine("..Configuring ThingSpeak processor");
       var tsKey = ConfigurationManager.AppSettings["processor.thingspeak.key"];
-      var tsEp = new ThingSpeakProcessor(tsKey, new[] { "SN303", "SN701" });
+      var tsproc = new ThingSpeakProcessor(tsKey, new[] { "SN303", "SN701" });
       #endregion
 
-      #region Artik cloud service
+      #region Artik processor
       Console.WriteLine("..Configuring Artik processor");
       //Local console sensor
       var deviceTypeId1 = ConfigurationManager.AppSettings["processor.artik.device1.type.id"];
@@ -161,7 +163,7 @@ namespace HBus.Server
       var deviceSource6 = ConfigurationManager.AppSettings["processor.artik.device6.source"];
       var deviceAddress6 = ConfigurationManager.AppSettings["processor.artik.device6.address"];
 
-      var artikEp = new ArtikProcessor(
+      var artikproc = new ArtikProcessor(
         new[]
         {
           new ArtikEvent(deviceId1, deviceTypeId1, deviceToken1, deviceName1, deviceSource1, deviceAddress1, "hbus"),
@@ -174,50 +176,75 @@ namespace HBus.Server
       );
       #endregion
 
+      #region UsbUirt processor
+#if USE_USBUIRT
+      /*
+         1500002D1FCA power
+         170000821ECA 1
+         150000231ECA 2       
+       */
+      var ircmd = new IrCommandEvent
+      {
+        IrCode = "170000821ECA", //button 1 on remote
+        Name = "pin-activate",
+        MessageType = "event",
+        Channel = "hbus",
+        Source = "CS201",
+        Address = "2"
+      };
+      var irproc = new UsbUirtProcessor(new List<IrCommandEvent> { ircmd });
+#endif
+      #endregion
+
+      Console.WriteLine("Build processors connections");
+
       //Scheduler => HBus
       Console.WriteLine("..Connect scheduler to HBus");
-      sp.AddSubscriber(hbusEp);
+      sproc.AddSubscriber(hbusproc);
 
       //HBus => websocket
       Console.WriteLine("..Connect websocket to HBus");
-      hbusEp.AddSubscriber(wsEp);
+      hbusproc.AddSubscriber(wsproc);
 
       //websocket => HBus
       Console.WriteLine("..Connect HBus to websocket");
-      wsEp.AddSubscriber(hbusEp);
+      wsproc.AddSubscriber(hbusproc);
 
       //HBus => ThingsSpeak
       Console.WriteLine("..Connect ThingsSpeak to HBus");
-      hbusEp.AddSubscriber(tsEp);
+      hbusproc.AddSubscriber(tsproc);
 
       //HBus => Artik Cloud
       Console.WriteLine("..Connect Artik Cloud to HBus");
-      hbusEp.AddSubscriber(artikEp);
+      hbusproc.AddSubscriber(artikproc);
 
       //Artik Cloud => HBus
       Console.WriteLine("..Connect HBus to Artik Cloud ");
-      artikEp.AddSubscriber(hbusEp);
+      artikproc.AddSubscriber(hbusproc);
 
-      //Scheduler
-      var scheduler = Scheduler.GetScheduler();
+#if USE_USBUIRT
+      //UsbUirt => HBus
+      Console.WriteLine("..Connect UsbUirt to HBus");
+      irproc.AddSubscriber(hbusproc);
+#endif
 
-      Console.WriteLine("Starting bus controller, scheduler and endpoints");
-      bus.Open();
-      scheduler.Start();
-
-      hbusEp.Start();
-      wsEp.Start();
-      tsEp.Start();
-      artikEp.Start();
-
+      Console.WriteLine("Starting processors");
+      hbusproc.Start();
+      wsproc.Start();
+      tsproc.Start();
+      artikproc.Start();
+#if USE_USBUIRT
+      irproc.Start();
+#endif
       Console.WriteLine("Press enter to stop");
       Console.ReadLine();
-      Console.WriteLine("Stopping endpoints, scheduler and bus controller");
+      Console.WriteLine("Stopping processors");
 
-      wsEp.Stop();
-      hbusEp.Stop();
-      scheduler.Stop();
-      bus.Close();
+      wsproc.Stop();
+      hbusproc.Stop();
+#if USE_USBUIRT
+      irproc.Stop();
+#endif
 
     }
   }

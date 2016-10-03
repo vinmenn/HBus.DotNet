@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set di attributi. Per modificare le informazioni associate a un assembly
 // occorre quindi modificare i valori di questi attributi.
 [assembly: AssemblyTitle("HBus.Node")]
-[assembly: AssemblyDescription("HBus node default implementation")]
+[assembly: AssemblyDescription("HBus homae automation node default implementation")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("VM")]
 [assembly: AssemblyProduct("HBus.Node")]
@@ -36,6 +36,7 @@ using System.Runtime.InteropServices;
 // 1.0.0 - 30/09/2015: Initial public commit
 // 1.0.1 - 15/07/2016: Updated scheduler
 // 1.1.0 - 01/09/2016: Added class EventHandlerSchedule
+// 1.1.1 - 03/10/2016: Added check pins status in main loop (for passive hardwares)
 //-----------------------------------------------------------------------------------------------------------------------------
-[assembly: AssemblyVersion("1.1.0")]
-[assembly: AssemblyFileVersion("1.1.0")]
+[assembly: AssemblyVersion("1.1.*")]
+[assembly: AssemblyFileVersion("1.1.1")]
